@@ -30,6 +30,7 @@ class GameScene: SKScene {
     var fishingline: SKSpriteNode?
     var pole:SKSpriteNode?
     var line: SKSpriteNode?
+    var fish = SKSpriteNode()
   
     var gameState: GameState = .readyTofish
     
@@ -37,6 +38,9 @@ class GameScene: SKScene {
     var lives: Int = 3
     // Labels
     var scoreLabel: SKLabelNode?
+    
+    var isMovingLeft:Bool = true
+    var isMovingRight:Bool = true
     
     
 
@@ -56,7 +60,9 @@ class GameScene: SKScene {
         pole = boat?.childNode(withName: "pole") as? SKSpriteNode
         line = childNode(withName: "line") as? SKSpriteNode
         hook = line?.childNode(withName: "hook") as? SKSpriteNode
+      
         
+        spawnFish()
         
     }
     
@@ -104,7 +110,6 @@ class GameScene: SKScene {
         switch gameState{
             
         case .readyTofish: startFishing(location:location)
-        case .fishing:break
         case .pullinghookback: pullHook()
         case .gameOver: break
 
@@ -159,6 +164,14 @@ class GameScene: SKScene {
         }
     }
     
+    func spawnFish(){
+        
+        fish = childNode(withName: "fish") as! SKSpriteNode
+     
+       
+        
+    }
+    
     
     override func update(_ currentTime: TimeInterval) {
        
@@ -167,11 +180,45 @@ class GameScene: SKScene {
         let maxCameraDepth:CGFloat = -1545.0
         // Update Camera
         let hookPosition = convert((hook?.position)!, from: line!)
+        
+        
+        
        
         if hookPosition.y < boat!.position.y &&
             hookPosition.y > maxCameraDepth {
             camera?.position = CGPoint(x: 0.0, y: hookPosition.y)
         }
+        
+        
+        
+        
+     
+        
+                if (self.isMovingRight == true) {
+                 fish.position.x = self.fish.position.x + 10;
+                    fish.xScale = 0.5
+                    
+                    if (fish.position.x >= 300) {
+                        // bounce off left wall
+                        self.isMovingRight = false;
+                        self.isMovingLeft = true;
+        
+                    }
+                }
+        
+                if (self.isMovingLeft == true) {
+                 fish.xScale = -0.5
+                  fish.position.x = self.fish.position.x - 10;
+        
+                    if (fish.position.x <= -250) {
+                        // bounce off right wall
+                        self.isMovingLeft = false
+                        self.isMovingRight = true
+                    }
+                }
+        
+            
+            
         
     }
     
