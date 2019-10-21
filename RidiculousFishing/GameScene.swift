@@ -66,18 +66,28 @@ class GameScene: SKScene {
         let hookDepth = CGFloat(3600.0)
         let hookSpeed = Double(7)
         
+        
+        
         let lineAction = SKAction.resize(toHeight: hookDepth , duration: hookSpeed)
         let hookAction = SKAction.moveTo(y: -hookDepth, duration: hookSpeed)
         
         hook?.run(hookAction)
         line?.run(lineAction)
         
+//        let timer = Timer()
+//
+//        Timer(timeInterval: 1000.0, target: self, selector: #selector(changeGameState), userInfo: nil, repeats: true)
         
-    
+        castAndReel(depth: hookDepth, speed: hookSpeed, completion: {
+            self.gameState = .pullinghookback
+            
+        })
     
         
         
     }
+    
+  
     
     
     
@@ -119,12 +129,36 @@ class GameScene: SKScene {
         }
     }
     
-    func pullHook(){
+    
+    func castAndReel(depth: CGFloat, speed: Double, completion: @escaping () -> ()) {
+    
+        let lineAction = SKAction.resize(toHeight: depth, duration: speed)
+        lineAction.timingMode = SKActionTimingMode.easeOut
         
-        self.camera?.removeAllActions()
-        self.camera!.position = CGPoint(x:0.0, y: self.boat!.position.y)
+        let hookAction = SKAction.moveTo(y: -depth, duration: speed)
+        hookAction.timingMode = SKActionTimingMode.easeOut
         
+        hook?.run(hookAction)
+        line?.run(lineAction, completion: completion)
+       
     }
+        
+    func pullHook() {
+        if gameState == .pullinghookback {
+//            gameState = .pullinghookback
+            
+            let targetDepth = CGFloat(100.0)
+            let currentDepth = line!.size.height
+            let hookVelocity = Double(currentDepth / 500)
+            
+            castAndReel(depth: targetDepth, speed: hookVelocity, completion: {
+                self.camera?.removeAllActions()
+                self.camera!.position = CGPoint(x: 0.0, y: self.boat!.position.y)
+                
+            })
+        }
+    }
+    
     
     override func update(_ currentTime: TimeInterval) {
        
@@ -140,5 +174,6 @@ class GameScene: SKScene {
         }
         
     }
+    
    
 }
